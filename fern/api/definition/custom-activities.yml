@@ -1,0 +1,41 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+imports:
+  estimation: estimation.yml
+
+types:
+  customActivityRequest:
+    properties:
+      custom_activity: customActivitySelector
+      parameters: map<string, unknown>
+
+  customActivitySelector:
+    properties:
+      label: optional<string>
+      source: optional<string>
+      region: optional<string>
+      year: optional<string>
+      lca_activity: optional<string>
+      calculation_method: optional<string>
+
+  batchCustomActivitiesResponse:
+    properties:
+      response: list<estimation.EstimateResponse>
+services:
+  http:
+    CustomActivitiesSerice:
+      auth: bearer
+      base-path: /custom-activities
+      endpoints:
+
+        customActivity:
+          method: POST
+          path: /estimate
+          request: customActivityRequest
+          response: estimation.EstimateResponse
+
+        batchCustomActivities:
+          method: POST
+          path: /batch
+          request: list<customActivityRequest>
+          response: batchCustomActivitiesResponse

@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+imports:
+  estimation: estimation.yml
+
+services:
+  http:
+    ClassificationsService:
+      auth: true
+      base-path: /
+      endpoints:
+        estimateByClassification:
+          method: POST
+          path: /classifications/estimate
+          request: ClassificationRequest
+          response: estimation.EstimateResponse
+
+
+types:
+  ClassificationSelector:
+    properties:
+      classification_code: string
+      classification_type: string
+      source: optional<string>
+      region: optional<string>
+      year: optional<string>
+      lca_activity: optional<string>
+      calculation_method: optional<string>
+  ClassificationRequest:
+    properties:
+      classification: ClassificationSelector
+      parameters: map<string, string>
+

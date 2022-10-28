@@ -1,0 +1,98 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+imports:
+  emission-factor: emission-factor.yml
+
+services:
+  http:
+    EstimationService:
+      docs: Estimation operations are performed to calculate emissions produced by one or more activities, based on multiplying activity data by the appropriate emission factors.
+      auth: true
+      base-path: /
+      endpoints:
+
+        estimate:
+          docs: Calculate total estimated emissions produced for a particular activity, in `kgCO2e``, using the available emission factors. All requests are performed by sending a POST request to the following endpoint
+          method: POST
+          path: /estimate
+          request: EstimateRequest
+          response: 
+            type: EstimateResponse
+            docs: An Estimation that describes the total amount of co2e and the emission factor used.
+
+        batchEstimate:
+          docs: This endpoint returns an Estimation, which includes the total amount of emissions in kgCO2e and the emission factor used to calculate the emissions.
+          method: POST
+          path: /batch
+          request: 
+            type: list<EstimateRequest>
+            docs: List of estimation operations. Every operation should follow the same syntax followed by the estimate request object.	
+          response: 
+            type: BatchEstimateResponse
+            docs: The response includes a list of Estimations.
+
+
+
+types:
+  EstimateRequest:
+    properties:
+      emission_factor: 
+        docs: Emission factor ID or selection parameters selector.	
+        type: EmissionSelector
+      parameters: 
+        docs: Emission factor parameters. The parameter object changes depending on the EF selected.	
+        type: unknown
+
+  EmissionSelector:
+    properties:
+      activity_id: string
+      source: optional<string>
+      region: optional<string>
+      region_fallback: optional<boolean>
+      year: optional<string>
+      lca_activity: optional<string>
+      calculation_method: optional<CalculationMethod>
+
+  CalculationMethod:
+    enum:
+      - ar4
+      - ar5
+
+  EstimateResponse:
+    properties:
+      co2e: double
+      co2e_unit: string
+      co2e_calculation_method: string
+      co2e_calculation_origin: string
+      emission_factor: UsedEmissionFactor
+      constituent_gases: emissionFactor.ConstituentGases
+
+  UsedEmissionFactor:
+    properties:
+      activity_id: string
+      source: string
+      year: string
+      region: string
+      category: string
+      lca_activity: string
+
+  BatchEstimateResponse:
+    properties:
+      response: 
+        type: list<BatchItemEstimate>
+        docs: List of results for every operation.
+
+  BatchItemEstimate:
+    union:
+      response: EstimateResponse
+      error: EstimateError
+
+  EstimateError:
+    properties:
+      error: 
+        type: string
+        docs: Error code
+      message: 
+        type: string
+        docs: Error message
+

@@ -1,0 +1,202 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+types:
+  SearchEmissionFactorsResponse:
+    properties:
+      results: list<EmissionFactor>
+      current_page: integer
+      last_page: integer
+      total_results: integer
+      possible_filters: PossibleEmissionFactorFilters
+
+  EmissionFactor:
+    properties:
+      activity_id: string
+      name: string
+      category: string
+      sector: string
+      source: string
+      source_link: string
+      uncertainty: optional<double>
+      year: string
+      region: string
+      region_name: string
+      description: string
+      unit_type: list<string>
+      unit: string
+      lca_activity: string
+      supported_calculation_methods: list<string>
+      factor: double
+      factor_calculation_method: string
+      factor_calculation_origin: string
+      constituent_gases: ConstituentGases
+
+  ConstituentGases:
+    properties:
+      co2e_total: optional<double>
+      co2e_other: optional<double>
+      co2: optional<double>
+      ch4: optional<double>
+      n2o: optional<double>
+
+  PossibleEmissionFactorFilters:
+    properties:
+      year: list<string>
+      source: list<string>
+      region: list<Region>
+      category: list<string>
+      sector: list<string>
+      unit_type: list<string>
+
+  Region:
+    properties:
+      id: string
+      name: string
+
+  YearsResponse:
+    properties:
+      results: list<string>
+
+  SourcesResponse:
+    properties:
+      results: list<string>
+
+  RegionsResponse:
+    properties:
+      results: list<Region>
+
+  CategoriesResponse:
+    properties:
+      results: list<string>
+
+  SectorsResponse:
+    properties:
+      results: list<string>
+
+  LcaActivitiesResponse:
+    properties:
+      results: list<string>
+
+  UnitTypesResponse:
+    properties:
+      results: list<string>
+
+services:
+  http:
+    EmissionFactorsService:
+      auth: bearer
+      base-path: /
+      endpoints:
+        searchEmissionFactors:
+          method: GET
+          path: /search
+          query-parameters:
+            query: optional<string>
+            activity_id: optional<string>
+            category: optional<string>
+            sector: optional<string>
+            source: optional<string>
+            year: optional<string>
+            region: optional<string>
+            lca_activity: optional<string>
+            calculation_method: optional<string>
+            page: optional<integer>
+            results_per_page: optional<integer>
+          response: SearchEmissionFactorsResponse
+
+        getYears:
+          method: GET
+          path: /emission-factors/years
+          query-parameters:
+            category: optional<string>
+            source: optional<string>
+            region: optional<string>
+            year: optional<string>
+            calculation_method: optional<string>
+            lca_activity: optional<string>
+            activity_id: optional<string>
+          response: YearsResponse
+
+        getSources:
+          method: GET
+          path: /emission-factors/sources
+          query-parameters:
+            sector: optional<string>
+            category: optional<string>
+            source: optional<string>
+            region: optional<string>
+            year: optional<string>
+            calculation_method: optional<string>
+            lca_activity: optional<string>
+            iactivity_idd: optional<string>
+          response: SourcesResponse
+
+        getRegions:
+          method: GET
+          path: /emission-factors/regions
+          query-parameters:
+            sector: optional<string>
+            category: optional<string>
+            source: optional<string>
+            region: optional<string>
+            year: optional<string>
+            calculation_method: optional<string>
+            lca_activity: optional<string>
+            activity_id: optional<string>
+          response: RegionsResponse
+
+        getCategories:
+          method: GET
+          path: /emission-factors/categories
+          query-parameters:
+            sector: optional<string>
+            category: optional<string>
+            source: optional<string>
+            region: optional<string>
+            year: optional<string>
+            calculation_method: optional<string>
+            lca_activity: optional<string>
+            activity_id: optional<string>
+          response: CategoriesResponse
+
+        getSectors:
+          method: GET
+          path: /emission-factors/sectors
+          query-parameters:
+            sector: optional<string>
+            category: optional<string>
+            source: optional<string>
+            region: optional<string>
+            year: optional<string>
+            calculation_method: optional<string>
+            lca_activity: optional<string>
+            activity_id: optional<string>
+          response: SectorsResponse
+
+        getLcaActivities:
+          method: GET
+          path: /emission-factors/lca-activities
+          query-parameters:
+            sector: optional<string>
+            category: optional<string>
+            source: optional<string>
+            region: optional<string>
+            year: optional<string>
+            calculation_method: optional<string>
+            lca_activity: optional<string>
+            activity_id: optional<string>
+          response: LcaActivitiesResponse
+
+        getUnitTypes:
+          method: GET
+          path: /emission-factors/
+          query-parameters:
+            sector: optional<string>
+            category: optional<string>
+            source: optional<string>
+            region: optional<string>
+            year: optional<string>
+            calculation_method: optional<string>
+            lca_activity: optional<string>
+            activity_id: optional<string>
+          response: UnitTypesResponse

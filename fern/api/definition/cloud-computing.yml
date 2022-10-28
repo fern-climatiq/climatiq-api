@@ -1,0 +1,81 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+imports:
+  estimation: estimation.yml
+
+services:
+  http:
+    CloudComputingService:
+      auth: true
+      base-path: /
+
+      endpoints:
+        cpu:
+          method: POST
+          path: /compute/{provider}/cpu
+          path-parameters:
+            provider: string
+          request: CpuRequest
+          response: estimation.EstimateResponse
+          
+        storage:
+          method: POST
+          path: /compute/{provider}/storage
+          path-parameters:
+            provider: string
+          request: StorageRequest
+          response: estimation.EstimateResponse
+          
+        memory:
+          method: POST
+          path: /compute/{provider}/memory
+          path-parameters:
+            provider: string
+          request: MemoryRequest
+          response: estimation.EstimateResponse
+          
+        # In the docs there's an example, but the request and response shapes are not specified.
+        # networking:
+        #   method: POST
+        #   path: /compute/{provider}/networking
+        #   path-parameters:
+        #    provider: string
+        #   request: NetworkingRequest
+        #   response: estimation.EstimateResponse 
+
+
+types:
+  CpuRequest:
+    properties:
+      region: string
+      cpu_count: integer
+      cpu_load: double
+      data_unit: string
+      duration: double
+      duration_unit: string
+
+  StorageRequest:
+    properties:
+      region: string
+      storage_type: string
+      data: double
+      data_unit: string
+      duration: double
+      duration_unit: string
+
+  MemoryRequest:
+    properties:
+      region: string
+      data: double
+      data_unit: string
+      duration: double
+      duration_unit: string
+
+  # In the docs examples, but the request and response shapes are not specified.
+  # NetworkingRequest:
+  #   properties:
+  #     region: string
+  #     data: double
+  #     data_unit: string
+  #     duration: double
+  #     duration_unit: string

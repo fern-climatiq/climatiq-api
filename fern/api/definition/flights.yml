@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+imports:
+  estimation: estimation.yml
+
+services:
+  http:
+    FlightsService:
+      docs: In addition to direct calculation of emissions per passenger-kilometer, passenger-mile, tonne-kilometer or ton-mile, Climatiq makes endpoints available for calculating emissions based on departure and arrival airports. The API will automatically select an emission factor, currently based on choosing the highest available CO2e value; a specific ID can be selected to override this.
+      auth: true
+      base-path: /
+      endpoints:
+      
+        travelFlights:
+          docs: Calculate total estimated emissions produced by passenger flights between the specified airports
+          method: POST
+          path: /travel/flights
+          request: TravelFlightsRequest
+          response: TripEmissions
+
+        freightFlights:
+          method: POST
+          path: /freight/flights
+          request: FreightFlightsRequest
+          response: TripEmissions
+
+types:
+  TravelLeg:
+    properties:
+      from: string
+      to: string
+      passengers: optional<integer>
+      class: optional<string>
+      emission_factor: optional<estimation.EmissionSelector>
+  TripEmissions:
+    properties:
+      co2e: double
+      cot2e_unit: string
+      legs: list<estimation.EstimateResponse>
+
+  FreightLeg:
+    properties:
+      from: string
+      to: string
+      weight: double
+      weight_unit: string
+      emission_factor: estimation.EmissionSelector
+
+  TravelFlightsRequest:
+    properties:
+      legs: 
+        type: list<TravelLeg>
+        docs: An array of one or more legs in a flight
+
+  FreightFlightsRequest:
+    properties:
+      legs: list<FreightLeg>
+
