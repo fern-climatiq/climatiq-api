@@ -1,0 +1,18 @@
+release:
+  - name: fernapi/fern-typescript-sdk
+    version: 0.0.219
+    publishing:
+      npm:
+        package-name: '@fern-api/{company}'
+        token: ${FERN_NPM_TOKEN}
+    github:
+      repository: fern-{company}/{company}-node
+  - name: fernapi/fern-java-sdk
+    version: 0.0.121
+    publishing:
+      maven:
+        coordinate: io.github.fern-api:{company}
+        username: ${FERN_MAVEN_USERNAME}
+        password: ${FERN_MAVEN_TOKEN}
+    github:
+      repository: fern-{company}/{company}-java
