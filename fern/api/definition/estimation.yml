@@ -1,8 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
 
-imports:
-  emission-factor: emission-factor.yml
-
 services:
   http:
     EstimationService:
@@ -30,8 +27,6 @@ services:
           response: 
             type: BatchEstimateResponse
             docs: The response includes a list of Estimations.
-
-
 
 types:
   EstimateRequest:
@@ -65,7 +60,7 @@ types:
       co2e_calculation_method: string
       co2e_calculation_origin: string
       emission_factor: UsedEmissionFactor
-      constituent_gases: emissionFactor.ConstituentGases
+      constituent_gases: ConstituentGases
 
   UsedEmissionFactor:
     properties:
@@ -96,3 +91,20 @@ types:
         type: string
         docs: Error message
 
+  ConstituentGases:
+    properties:
+      co2e_total: 
+        type: optional<double>
+        docs: The total amount of GHG emitted per unit of activity expressed as kgCO2e, as reported by the source. It is null for Climatiq-performed calculations.
+      co2e_other: 
+        type: optional<double>
+        docs: The total amount of GHG emitted that are not CO2, CH4 or N20 - expressed in kgCO2e emitted per unit of activity, as reported by the source.
+      co2: 
+        type: optional<double>
+        docs: The amount of carbon dioxide (CO2) emitted per unit of activity expressed as kgCO2, as reported by the source.
+      ch4: 
+        type: optional<double>
+        docs: The amount of methane (CH4) emitted per unit of activity expressed as kgCH4, as reported by the source.
+      n2o: 
+        type: optional<double>
+        docs: The amount of nitrous oxide (N2O) emitted per unit of activity expressed as kgN2O, as reported by the source.

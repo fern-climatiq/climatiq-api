@@ -17,7 +17,6 @@ services:
           availability: pre-release
           method: GET 
           path: /compute
-          request: MetadataRequest
           response: MetadataResponse
 
         cpu:

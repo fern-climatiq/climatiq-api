@@ -97,6 +97,7 @@ services:
           response: SourcesResponse
 
         getRegions:
+          docs: Not all emission factors have data for all geographic regions. This endpoint returns a list of regions available for a given query.
           method: GET
           path: /emission-factors/regions
           query-parameters:
@@ -111,6 +112,7 @@ services:
           response: RegionsResponse
 
         getCategories:
+          docs: Returns a list of categories available for a given query.
           method: GET
           path: /emission-factors/categories
           query-parameters:
@@ -125,6 +127,7 @@ services:
           response: CategoriesResponse
 
         getSectors:
+          docs: Returns a list of sectors available for a given query.
           method: GET
           path: /emission-factors/sectors
           query-parameters:
@@ -139,6 +142,7 @@ services:
           response: SectorsResponse
 
         getLcaActivities:
+          docs: Returns a list of life cycle assessment(LCA) activities available for a given query.
           method: GET
           path: /emission-factors/lca-activities
           query-parameters:
@@ -153,6 +157,7 @@ services:
           response: LcaActivitiesResponse
 
         getUnitTypes:
+          docs:  Returns a list of unit types available for a given query.
           method: GET
           path: /emission-factors/
           query-parameters:
@@ -246,13 +251,13 @@ types:
         type: double
         docs: CO2e emission factor value, expressed in kgCO2e emitted per unit of activity provided in the unit field
       factor_calculation_method: 
-        type: <estimation.CalculationMethod
+        type: estimation.CalculationMethod
         docs: Indicates which conversion values were used (IPCC 4th or 5th Assessment Report) to generate the returned CO2e emission factor
       factor_calculation_origin: 
         type: FactorCalculationOrigin
         docs: Indicates whether the CO2e emission factor provided in this response was provided by the source or calculated by Climatiq
       constituent_gases: 
-        type: ConstituentGases
+        type: estimation.ConstituentGases
         docs: Indicates which gases the CO2e emission factor is composed of.
 
   FactorCalculationOrigin: 
@@ -260,79 +265,75 @@ types:
       - climatiq
       - source
 
-  ConstituentGases:
-    properties:
-      co2e_total: 
-        type: optional<double>
-        docs: The total amount of GHG emitted per unit of activity expressed as kgCO2e, as reported by the source. It is null for Climatiq-performed calculations.
-      co2e_other: 
-        type: optional<double>
-        docs: The total amount of GHG emitted that are not CO2, CH4 or N20 - expressed in kgCO2e emitted per unit of activity, as reported by the source.
-      co2: 
-        type: optional<double>
-        docs: The amount of carbon dioxide (CO2) emitted per unit of activity expressed as kgCO2, as reported by the source.
-      ch4: 
-        type: optional<double>
-        docs: The amount of methane (CH4) emitted per unit of activity expressed as kgCH4, as reported by the source.
-      n2o: 
-        type: optional<double>
-        docs: The amount of nitrous oxide (N2O) emitted per unit of activity expressed as kgN2O, as reported by the source.
-
   PossibleEmissionFactorFilters:
     properties:
       year: 
         type: list<string>
-        docs: 
+        docs: Filters emission factors by year factor applies to
       source: 
         type: list<string>
-        docs: 
+        docs: Filters emission factors by data source	
       region: 
         type: list<Region>
-        docs: 
+        docs: Filters emission factors by geographic region	
       category: 
         type: list<string>
-        docs: 
+        docs: Filters by emission factor category	
       sector: 
         type: list<string>
-        docs: 
+        docs: Filters by emission factor sector	
       unit_type: 
         type: list<string>
-        docs: 
+        docs: Filters by unit type
 
   Region:
     properties:
       id: 
         type: string
-        docs: 
+        docs: Region ID
       name: 
         type: string
-        docs: 
+        docs: Region name
 
   YearsResponse:
     properties:
-      results: list<string>
+      results: 
+        type: list<string>
+        docs: List of years available for the given query.
 
   SourcesResponse:
     properties:
-      results: list<string>
+      results: 
+        type: list<string>
+        docs: List of sources available for the given query.
 
   RegionsResponse:
     properties:
-      results: list<Region>
+      results: 
+        type: list<Region>
+        docs: List of regions available for the given query.
 
   CategoriesResponse:
     properties:
-      results: list<string>
+      results: 
+        type: list<string>
+        docs: List of categories available for the given query.
 
   SectorsResponse:
     properties:
-      results: list<string>
+      results: 
+        type: list<string>
+        docs: List of sectors available for the given query.
 
   LcaActivitiesResponse:
     properties:
-      results: list<string>
+      results: 
+        type: list<string>
+        docs: List of life cycle assessment activities available for the given query.
 
   UnitTypesResponse:
     properties:
-      results: list<string>
+      results: 
+        type: list<string>
+        docs: List of units available for the given query.
 
