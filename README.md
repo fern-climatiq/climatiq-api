@@ -5,6 +5,7 @@ Tagging a release on this repository will update the:
 - [TypeScript SDK Github Repo](https://github.com/fern-climatiq/climatiq-node)
 - [Java SDK Github Repo](https://github.com/fern-climatiq/climatiq-java)
 - [OpenAPI Description Github Repo](https://github.com/fern-climatiq/climatiq-openapi)
+- [Postman Collection Github Repo](https://github.com/fern-climatiq/climatiq-postman)
 - _More SDKs to come..._
 
 ## What is in this repository?
