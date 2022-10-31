@@ -6,26 +6,60 @@ imports:
 services:
   http:
     ClassificationsService:
+      docs: | 
+        Many sources link emission factors to specific industry classification schemes, 
+        and Climatiq makes it possible to select an emission factor based on these industry classification codes. 
+        Please see below the list of mappings we currently support, with the datasets that are mapped directly to them (note that the API will also map factors indirectly via the UN correspondence tables):
+        INDUSTRY CLASSIFICATION CODE	PRIMARY DATASET
+          ISIC Rev. 4	| GHG Protocol (via ISIC 3.1)
+          NACE Rev. 2	| EXIOBASE3
       auth: true
-      base-path: /
+      base-path: /classifications
       endpoints:
-        estimateByClassification:
+        estimate:
+          docs: | 
+            This endpoint lets you specify an industry classification code (ISIC or NACE) 
+            and have Climatiq automatically select the appropriate emission factor. 
+            One industry code might be linked to more than one emission factor. 
+            If that happens, Climatiq will automatically select the most conservative emission factor. 
+            If you would like to specify exactly what emission factor to use, you can specify other attributes to filter on, such as year, source or region.
           method: POST
-          path: /classifications/estimate
+          path: /estimate
           request: ClassificationRequest
-          response: estimation.EstimateResponse
+          response: 
+            type: estimation.EstimateResponse
+            docs: An Estimation that describes the total amount of co2e and the emission factor used.
 
 
 types:
   ClassificationSelector:
+    docs: A selector with classification data
     properties:
-      classification_code: string
-      classification_type: string
-      source: optional<string>
-      region: optional<string>
-      year: optional<string>
-      lca_activity: optional<string>
-      calculation_method: optional<string>
+      classification_code: 
+        type: string
+        docs: The classification code.
+      classification_type: 
+        type: string
+        docs: The classification scheme; currently supported are nace2 or isic4.	
+      source: 
+        type: optional<string>
+        docs: Emission factor data source name.	
+      region:
+        type: optional<string>
+        docs: Geographic region to which the emission factor applies.	
+      region_fallback: 
+        type: optional<boolean>
+        docs: Set this to true if you're willing to accept a less specific geographical region than the one you've specified. Climatiq will then attempt to fall back to the larger region if it does not find any emission factors with the initial region. Default is false	
+      year: 
+        type: optional<string>
+        docs: Year for which the emission factor applies.	
+      lca_activity: 
+        type: optional<string>
+        docs: The Life Cycle Assessment (LCA) activity to which this factor is associated.	
+      calculation_method: 
+        type: optional<estimation.CalculationMethod>
+        docs: The calculation method that will be used to calculate the CO2e emission factor.
+  
   ClassificationRequest:
     properties:
       classification: ClassificationSelector
