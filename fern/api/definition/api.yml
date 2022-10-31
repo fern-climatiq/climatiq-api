@@ -1,10 +1,7 @@
 name: api
 auth: bearer
 environments:
-  Production:
-    url: 
-    docs:
-  Sandbox:
-    url:
-    docs:
+  Production: 
+    url: https://beta3.api.climatiq.io
+    docs: Base URL
 default-environment: Production

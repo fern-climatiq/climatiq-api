@@ -1,0 +1,339 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+imports:
+  estimation: estimation.yml
+
+services:
+  http:
+    EmissionFactorsService:
+      docs: The Climatiq API can be queried for emission factors in a number of ways, outlined below.
+      auth: true
+      base-path: /
+      endpoints:
+
+        search:
+          docs: | 
+            Allows you to determine what emission factors are available to be used in your estimates.
+            You can search for free-text queries with the query parameter, or filter by parameters such as category, source, region, year calculation_method, lca_activity or id.
+            If you are using the query parameter, the results will be returned in order of how well they match your free-text query.
+            This endpoint is paginated, and will return current_page and last_page so you can determine which page you are on. You switch pages by using the page query parameter.
+          method: GET
+          path: /search
+          query-parameters:
+            query: 
+              type: optional<string>
+              docs: | 
+                A free-text query that will match ids, names, descriptions, etc. of emission factors. 
+                This uses fuzzy matching, so your query does not need to be precise. 
+                Spaces need to be encoded as + or %20 . 
+                Default is ""
+            uuid: 
+              type: optional<string>
+              docs: Filter by the ID of a specific emission factor.	Default is `all`
+            activity_id: 
+              type: optional<string>
+              docs: Filter by the id of a specific activity. Multiple emission factors might share the same activity. You may specify an asterix (*) at the end of the id to act as a wildcard character, matching any ids that begin with the string before the asterix.	
+            id: 
+              type: optional<string>
+              docs:  A deprecated alias for activity_id. Use activity_id instead, as this will be deprecated next version.	
+            category: 
+              type: optional<string>
+              docs: Filters by emission factor category	
+            sector: 
+              type: optional<string>
+              docs: Filters by emission factor sector	
+            source: 
+              type: optional<string>
+              docs: Filters emission factors by data source	
+            year: 
+              type: optional<string>
+              docs: Filters emission factors by year factor was released	
+            region: 
+              type: optional<string>
+              docs: Filters emission factors by geographic region to which it applies. You may specify an asterix (*) at the end of the region to act as a wildcard character, matching any regions, such as sub-regions, that begin with the string before the asterix.	
+            lca_activity: 
+              type: optional<string>
+              docs: The Life Cycle Assessment (LCA) activity with which this factor is associated.	
+            unit_type: 
+              type: optional<string> 
+              docs: Filters emission factors by what unit (such as money, energy or volume) the factor accepts.	
+            calculation_method: 
+              type: optional<estimation.CalculationMethod>
+              docs: The calculation method that is used to calculate the emission factor. Can be either ar4 or ar5
+            page: 
+              type: optional<integer>
+              docs: Which page of results to retrieve.	
+            results_per_page: 
+              type: optional<integer>
+              docs: How many results to return per page. Max is 100.	
+          response: SearchEmissionFactorsResponse
+
+        getYears:
+          docs: Not all emission factors have data for all years. This endpoint returns a list of years available for a given query.
+          method: GET
+          path: /emission-factors/years
+          query-parameters:
+            category: optional<string>
+            source: optional<string>
+            region: optional<string>
+            year: optional<string>
+            calculation_method: optional<string>
+            lca_activity: optional<string>
+            activity_id: optional<string>
+          response: YearsResponse
+
+        getSources:
+          method: GET
+          path: /emission-factors/sources
+          query-parameters:
+            sector: optional<string>
+            category: optional<string>
+            source: optional<string>
+            region: optional<string>
+            year: optional<string>
+            calculation_method: optional<string>
+            lca_activity: optional<string>
+            iactivity_idd: optional<string>
+          response: SourcesResponse
+
+        getRegions:
+          docs: Not all emission factors have data for all geographic regions. This endpoint returns a list of regions available for a given query.
+          method: GET
+          path: /emission-factors/regions
+          query-parameters:
+            sector: optional<string>
+            category: optional<string>
+            source: optional<string>
+            region: optional<string>
+            year: optional<string>
+            calculation_method: optional<string>
+            lca_activity: optional<string>
+            activity_id: optional<string>
+          response: RegionsResponse
+
+        getCategories:
+          docs: Returns a list of categories available for a given query.
+          method: GET
+          path: /emission-factors/categories
+          query-parameters:
+            sector: optional<string>
+            category: optional<string>
+            source: optional<string>
+            region: optional<string>
+            year: optional<string>
+            calculation_method: optional<string>
+            lca_activity: optional<string>
+            activity_id: optional<string>
+          response: CategoriesResponse
+
+        getSectors:
+          docs: Returns a list of sectors available for a given query.
+          method: GET
+          path: /emission-factors/sectors
+          query-parameters:
+            sector: optional<string>
+            category: optional<string>
+            source: optional<string>
+            region: optional<string>
+            year: optional<string>
+            calculation_method: optional<string>
+            lca_activity: optional<string>
+            activity_id: optional<string>
+          response: SectorsResponse
+
+        getLcaActivities:
+          docs: Returns a list of life cycle assessment(LCA) activities available for a given query.
+          method: GET
+          path: /emission-factors/lca-activities
+          query-parameters:
+            sector: optional<string>
+            category: optional<string>
+            source: optional<string>
+            region: optional<string>
+            year: optional<string>
+            calculation_method: optional<string>
+            lca_activity: optional<string>
+            activity_id: optional<string>
+          response: LcaActivitiesResponse
+
+        getUnitTypes:
+          docs:  Returns a list of unit types available for a given query.
+          method: GET
+          path: /emission-factors/
+          query-parameters:
+            sector: optional<string>
+            category: optional<string>
+            source: optional<string>
+            region: optional<string>
+            year: optional<string>
+            calculation_method: optional<string>
+            lca_activity: optional<string>
+            activity_id: optional<string>
+          response: UnitTypesResponse
+
+
+types:
+  SearchEmissionFactorsResponse:
+    properties:
+      results: 
+        type: list<EmissionFactor>
+        docs: A list of emission factors for this page.
+      current_page: 
+        type: integer
+        docs: The current page you have retrieved
+      last_page: 
+        type: integer
+        docs: The last page that there are results for.
+      total_results: 
+        type: integer
+        docs: How many results there are in total across all pages.
+      possible_filters: 
+        type: PossibleEmissionFactorFilters
+        docs: A list of potential filters you can use to further narrow down your query. This will specify which sources, years etc. your current data contains.
+
+  EmissionFactor:
+    properties:
+      uuid: 
+        type: string
+        docs: The unique ID describing this particular emission factor.
+      activity_id: 
+        type: string
+        docs: The ID describing the activity that this emission factor applies to. Multiple emission factors can share the same activity_id, e.g. if they are from a different source or apply to a different region.
+      id: 
+        type: string 
+        docs: A deprecated alias for activity_id. Use activity_id instead, as this will be removed in the next version.
+      access_type: 
+        type: string
+        docs: Whether or not the data is publicly available or private to your project. Can be either private or public. Public emission factors are available to all, while private emission factors are only accessible to you.
+      name: 
+        type: string
+        docs: Emission factor name.
+      category: 
+        type: string
+        docs: Emission factor category.
+      sector: 
+        type: string
+        docs: Emission factor sector.
+      source: 
+        type: string
+        docs: Emission factor publisher.
+      source_link: 
+        type: string
+        docs: Link to emission factor publisher.
+      uncertainty: 
+        type: optional<double>
+        docs: Emission factor uncertainty factor (%).
+      year: 
+        type: string
+        docs: Year for which the emission factor applies.
+      region: 
+        type: string
+        docs: Geographic region to which the emission factor applies (UN/LOCODE).
+      region_name: 
+        type: string
+        docs: Geographic region to which the emission factor applies (in English).
+      description: 
+        type: string
+        docs: Emission factor description.
+      unit_type: 
+        type: list<string>
+        docs: A list of Unit types that this emission factor accepts.
+      unit: 
+        type: string
+        docs: The unit in which the factor field is expressed.
+      lca_activity: 
+        type: string
+        docs: Which LCA activity the emission factor corresponds to. Read more about life cycle assessments here.
+      supported_calculation_methods: 
+        type: list<string>
+        docs: The methods of CO2e calculation supported for this emission factor
+      factor: 
+        type: double
+        docs: CO2e emission factor value, expressed in kgCO2e emitted per unit of activity provided in the unit field
+      factor_calculation_method: 
+        type: estimation.CalculationMethod
+        docs: Indicates which conversion values were used (IPCC 4th or 5th Assessment Report) to generate the returned CO2e emission factor
+      factor_calculation_origin: 
+        type: FactorCalculationOrigin
+        docs: Indicates whether the CO2e emission factor provided in this response was provided by the source or calculated by Climatiq
+      constituent_gases: 
+        type: estimation.ConstituentGases
+        docs: Indicates which gases the CO2e emission factor is composed of.
+
+  FactorCalculationOrigin: 
+    enum: 
+      - climatiq
+      - source
+
+  PossibleEmissionFactorFilters:
+    properties:
+      year: 
+        type: list<string>
+        docs: Filters emission factors by year factor applies to
+      source: 
+        type: list<string>
+        docs: Filters emission factors by data source	
+      region: 
+        type: list<Region>
+        docs: Filters emission factors by geographic region	
+      category: 
+        type: list<string>
+        docs: Filters by emission factor category	
+      sector: 
+        type: list<string>
+        docs: Filters by emission factor sector	
+      unit_type: 
+        type: list<string>
+        docs: Filters by unit type
+
+  Region:
+    properties:
+      id: 
+        type: string
+        docs: Region ID
+      name: 
+        type: string
+        docs: Region name
+
+  YearsResponse:
+    properties:
+      results: 
+        type: list<string>
+        docs: List of years available for the given query.
+
+  SourcesResponse:
+    properties:
+      results: 
+        type: list<string>
+        docs: List of sources available for the given query.
+
+  RegionsResponse:
+    properties:
+      results: 
+        type: list<Region>
+        docs: List of regions available for the given query.
+
+  CategoriesResponse:
+    properties:
+      results: 
+        type: list<string>
+        docs: List of categories available for the given query.
+
+  SectorsResponse:
+    properties:
+      results: 
+        type: list<string>
+        docs: List of sectors available for the given query.
+
+  LcaActivitiesResponse:
+    properties:
+      results: 
+        type: list<string>
+        docs: List of life cycle assessment activities available for the given query.
+
+  UnitTypesResponse:
+    properties:
+      results: 
+        type: list<string>
+        docs: List of units available for the given query.
+

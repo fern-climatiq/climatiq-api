@@ -1,0 +1,91 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+imports:
+  estimation: estimation.yml
+
+services:
+  http:
+    FlightsService:
+      docs: In addition to direct calculation of emissions per passenger-kilometer, passenger-mile, tonne-kilometer or ton-mile, Climatiq makes endpoints available for calculating emissions based on departure and arrival airports. The API will automatically select an emission factor, currently based on choosing the highest available CO2e value; a specific ID can be selected to override this.
+      auth: true
+      base-path: /
+      endpoints:
+      
+        travelFlights:
+          docs: Calculate total estimated emissions produced by passenger flights between the specified airports
+          method: POST
+          path: /travel/flights
+          request: TravelFlightsRequest
+          response: 
+            type: TripEmissions
+            docs: The response includes the total emissions for the trip in kgCO2e, and the emissions for each leg of the trip.
+
+        freightFlights:
+          docs: Calculate total estimated emissions produced by freight flights between the specified airport.
+          method: POST
+          path: /freight/flights
+          request: FreightFlightsRequest
+          response: 
+            type: TripEmissions
+            docs: The response includes the total emissions for the trip in kgCO2e, and the emissions for each leg of the trip.
+
+types:
+  BaseLeg: 
+    properties:
+      from: 
+        type: string
+        docs: Start of flight leg, expressed in an IATA code	
+      to: 
+        type: string
+        docs: End of flight leg, expressed in an IATA code	
+      
+  TravelLeg:
+    extends: BaseLeg
+    properties:
+      passengers: 
+        type: optional<integer>
+        docs: How many passengers are on the flight? Default is 1
+      class: 
+        type: optional<string>
+        docs: Which class the flight was on.
+      emission_factor: 
+        type: optional<estimation.EmissionSelector>
+        docs: This endpoint will automatically pick the highest emission factor which is eligible for the flight. If you want to override the automatic emission factor selection you can provide a selector. You are then fully responsible for emission factor selection. The selector must end up selecting an emission factor that supports the PassengerOverDistance unit.	
+  
+  TripEmissions:
+    properties:
+      co2e: 
+        type: double
+        docs: Total carbon dioxide equivalent for entire trip.
+      cot2e_unit: 
+        type: string
+        docs: The unit in which the co2e field is expressed.
+      legs: 
+        type: list<estimation.EstimateResponse>
+        docs: List of estimations, one for each leg in the trip. These are returned in the same order as the flight legs.
+
+  FreightLeg:
+    extends: BaseLeg
+    properties:
+      weight: 
+        type: double
+        docs: Weight in the defined unit	
+      weight_unit: 
+        type: string
+        docs: Unit of weight. Allowed values are kg for metric kilograms, t for tonnes (metric tons) or ton for US short tons.	Default kg 
+      emission_factor: 
+        type: estimation.EmissionSelector
+        docs: This endpoint will automatically pick the highest emission factor which is eligible for the flight. If you want to override the automatic emission factor selection you can provide a selector. You are then fully responsible for emission factor selection. The selector must end up selecting an emission factor that supports the WeightOverDistance unit.
+
+  TravelFlightsRequest:
+    properties:
+      legs: 
+        type: list<TravelLeg>
+        docs: An array of one or more legs in a flight
+
+  FreightFlightsRequest:
+    properties:
+      legs: 
+        type: list<FreightLeg>
+        docs: An array of one or more legs in a flight
+

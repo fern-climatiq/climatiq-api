@@ -1,0 +1,149 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+imports:
+  estimation: estimation.yml
+
+services:
+  http:
+    CloudComputingService:
+      docs: | 
+        Climatiq makes endpoints available to help you calculate the carbon footprint of the cloud resources you use. It will automatically select emission factors based on your cloud provider and region, so you get the right emission factor for your datacenter.
+        All the cloud computing endpoints expect you to provide the cloud provider in the url. Where the urls state :provider you must replace it with a supported cloud provider. You can view the supported cloud providers by using the metadata endpoint
+      auth: true
+      base-path: /
+      endpoints:
+
+        metadata:
+          availability: pre-release
+          method: GET 
+          path: /compute
+          response: MetadataResponse
+
+        cpu:
+          docs: Calculate total estimated emissions based on the usage for a set number of virtual CPU's (vCPUs)
+          method: POST
+          path: /compute/{provider}/cpu
+          path-parameters:
+            provider: ProviderId
+          request: CpuRequest
+          response: 
+            type: estimation.EstimateResponse
+            docs: You will get an Estimation back with the co2e for the power consumption for the allocated memory for the given duration.
+          
+        storage:
+          docs: Calculate total estimated emissions based on storing data for a set amount of time.
+          method: POST
+          path: /compute/{provider}/storage
+          path-parameters:
+            provider: 
+              type: ProviderId
+              docs: Where the :provider path argument must be replaced with the id of the supported cloud providers.
+          request: StorageRequest
+          response: 
+            type: estimation.EstimateResponse
+            docs: You will get an Estimation back with the CO2e for the storage of the data for the given duration.
+          
+        memory:
+          docs: Calculate total estimated emissions based on having memory (RAM) available for a set amount of time.
+          method: POST
+          path: /compute/{provider}/memory
+          path-parameters:
+            provider: 
+              type: ProviderId
+              docs: Where the :provider path argument must be replaced with the id of the supported cloud providers.
+          request: MemoryRequest
+          response: 
+            type: estimation.EstimateResponse
+            docs: You will get an Estimation back with the co2e emitted by having the allocated memory available for the given duration.
+
+types:
+  ProviderId: string
+  
+  BaseRequest: 
+    properties:
+      region: 
+        type: string
+        docs: The region that is relevant for the calculation, as specified by the cloud provider.	
+      duration_unit: 
+        type: optional<string>
+        docs: The unit the duration value is in. The values accepted here are the same as in the Time unit.	
+
+  CpuRequest:
+    extends: BaseRequest
+    properties:
+      cpu_count: 
+        type: integer
+        docs: The number of virtual cores you are calculating for.	
+      cpu_load: 
+        type: double
+        docs: The average load across all of your vCPU's specified as a float between 0 and 1.
+      duration: 
+        type: double
+        docs: How long the vCPUs are running for. Default is h
+  
+  StorageRequest:
+    extends: BaseRequest
+    properties:
+      storage_type:
+        type: StorageType
+        docs: Which type of hard drive the data is stored on.
+      data: 
+        type: double
+        docs: How much data is stored. If you use managed services for storage that replicate data across multiple datacenters or hard drives, you might need to take your data amount and multiply it by a replication factor. 
+      data_unit: 
+        type: optional<string>
+        docs: The unit the data value is in. The values accepted here are the same as in the Data unit.	Default is MB
+      duration: 
+        type: double
+        docs: How long the data is stored for.	
+
+
+  MemoryRequest:
+    properties:
+      data: 
+        type: double
+        docs: How much memory you have allocated. As memory requires power to be available even if unused, you should put in the amount of memory that you have available - not only the amount you're using.	
+      data_unit: 
+        type: optional<string>
+        docs: The unit the data value is in. The values accepted here are the same as in the Data unit.	
+      duration: 
+        type: double
+        docs: How long the data is stored for.	
+
+  MetadataResponse:
+    properties:
+      cloud_providers: 
+        type: map<CloudProvider, CloudProviderMetadata>
+        docs: An object where each key is the id for a cloud provider, and the corresponding value contains additional data about that cloud provider.
+      
+  CloudProvider:
+    enum: 
+      - aws 
+      - gcp
+      - azure
+
+  CloudProviderMetadata:
+    properties:
+      provider_full_name: 
+        type: string 
+        docs: The full, human-readable name for the provider
+      provider_id: 
+        type: string
+        docs: The id of the cloud provider. This is the value you must use when specifying provider in the computing endpoints
+      cpu_regions: 
+        type: list<string>
+        docs: The different strings you can use for regions in the CPU endpoint for this provider.
+      storage_regions: 
+        type: list<string>
+        docs: The different strings you can use for regions in the Storage endpoint for this provider.
+      memory_regions: 
+        type: list<string>
+        docs: The different strings you can use for regions in the Memory endpoint for this provider. 
+
+  StorageType: 
+    docs: Which type of hard drive the data is stored on. The cloud provider does not always specify this for managed services, so you might have to make an informed guess.
+    enum: 
+      - value: ssd
+        docs: solid state drive 
+      - value: hdd
+        docs: hard disk drive

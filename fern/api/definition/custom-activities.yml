@@ -1,0 +1,71 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/fern-api/fern/main/fern.schema.json
+
+imports:
+  estimation: estimation.yml
+
+services:
+  http:
+    CustomActivitiesService:
+      docs: Instead of using code to specify emission factors you want to use for your calculations, you can map your own activity identifiers to Climatiq IDs in the Climatiq dashboard, allowing the Climatiq API to recognize whatever values you use to categorize your activities. In the dashboard simply link a custom activity label to an emission factor id, and this can then be used in the custom activities endpoints.
+      auth: true
+      base-path: /custom-activities
+      endpoints:
+
+        estimate:
+          docs: | 
+            Calculate total estimated emissions produced for a particular activity in kgCO2e using a custom activity that you have defined under the Activity Mapping tab inside your Climatiq Dashboard.
+            A custom activity label provides the same flexibility as the ID it maps to. This can happen when multiple emission factors share an emission factor id or because you have mapped the same custom activity to different emission factor ids.
+            You can provide parameters to select emission factors by filtering using year, region, data source and more as described in our selector section. If there are multiple emission factors Climatiq will automatically pick the most conservative one.
+          method: POST
+          path: /estimate
+          request: customActivityRequest
+          response: estimation.EstimateResponse
+
+        batchCustomActivities:
+          docs: Batch estimations for custom activities work like regular Batch Estimates, allowing you to calculate multiple emission estimations in a single request, all based on custom activities mapped in the Climatiq Dashboard. Currently limited to maximum 100 operations per request.
+          method: POST
+          path: /batch
+          request: 
+            type: list<customActivityRequest>
+            docs: List of custom activity estimation operations. Every operation should follow the same syntax followed by the custom activitiy estimate request object.	  
+          response: 
+            type: batchCustomActivitiesResponse
+            docs: List of results for every operation.
+
+types:
+  customActivityRequest:
+    properties:
+      custom_activity: 
+        type: customActivitySelector
+        docs: A selector allowing the use of a custom activity label defined in the activity mapping tab in the Climatiq Dashboard	
+      parameters: 
+        type: map<string, unknown>
+        docs: Emission factor parameters. The parameter object changes depending on the EF selected.	
+
+  customActivitySelector:
+    properties:
+      label: 
+        type: string
+        docs: The custom activity label you have specified in your dashboard.	
+      source: 
+        type: optional<string>
+        docs: Emission factor data source name.	
+      region: 
+        type: optional<string>
+        docs: Geographic region to which the emission factor applies.	
+      region_fallback:  
+        type: optional<boolean>
+        docs: Set this to true if you're willing to accept a less specific geographical region than the one you've specified. Climatiq will then attempt to fall back to the larger region if it does not find any emission factors with the initial region. Default is false	
+      year: 
+        type: optional<string>
+        docs: Year for which the emission factor applies.	
+      lca_activity: 
+        type: optional<string>
+        docs: The Life Cycle Assessment (LCA) activity to which this factor is associated.	
+      calculation_method:
+        type: optional<estimation.CalculationMethod>
+        docs: The calculation method that will be used to calculate the CO2e emission factor.
+
+  batchCustomActivitiesResponse:
+    properties:
+      results: list<estimation.EstimateResponse>
